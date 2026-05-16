@@ -1,351 +1,340 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFC-Based Card Management System</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC Card Management System</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <section id="loginScreen" class="login-screen">
-    <article class="login-card">
-      <div class="brand login-brand">
-        <div class="brand-mark">NFC</div>
-        <div>
-          <h1>Card Admin</h1>
-          <p>Engineering Thesis Demo</p>
-        </div>
-      </div>
-      <h2>Admin Login</h2>
-      <p class="note">Use the demo credentials to open the NFC card management dashboard.</p>
+
+  <!-- Login -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <h1>NFC Card System</h1>
+      <p>Engineering Thesis Demo</p>
+
       <form id="loginForm" class="form">
-        <label>
-          Username
-          <input type="text" id="loginUsername" autocomplete="username" placeholder="admin" required>
-        </label>
-        <label>
-          Password
-          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="admin123" required>
-        </label>
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="admin" required />
+
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="admin123" required />
+
         <button type="submit" class="primary-btn">Login</button>
         <p id="loginError" class="login-error"></p>
       </form>
-    </article>
-  </section>
-
-  <div id="appShell" class="app-shell hidden">
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark">NFC</div>
-      <div>
-        <h1>Card Admin</h1>
-        <p>Thesis Demo Panel</p>
-      </div>
     </div>
+  </div>
 
-    <nav class="nav">
-      <a href="#dashboard" class="nav-link active">Dashboard</a>
-      <a href="#register" class="nav-link">Register User/Card</a>
-      <a href="#scan" class="nav-link">NFC Scan Simulation</a>
-      <a href="#logs" class="nav-link">Access Logs</a>
-      <a href="#architecture" class="nav-link">System Architecture</a>
-      <a href="#security" class="nav-link">Security Overview</a>
-    </nav>
-  </aside>
+  <!-- Main App -->
+  <div id="appShell" class="app-shell hidden">
+    <aside class="sidebar">
+      <h2>NFC Admin</h2>
+      <p>Thesis Demo</p>
 
-  <main class="main">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Design and Analysis of an NFC-Based Card Management System</p>
-        <h2>Admin Dashboard</h2>
-      </div>
-      <span class="demo-badge">Academic Simulation</span>
-    </header>
+      <nav class="nav">
+        <a href="#dashboard" class="nav-link active">Dashboard</a>
+        <a href="#register" class="nav-link">Register Card</a>
+        <a href="#scan" class="nav-link">Scan Simulation</a>
+        <a href="#logs" class="nav-link">Access Logs</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#security" class="nav-link">Security</a>
+      </nav>
+    </aside>
 
-    <section id="dashboard" class="section">
-      <div class="section-heading">
+    <main class="main">
+      <header class="topbar">
         <div>
-          <p class="eyebrow">Overview</p>
-          <h3>Dashboard</h3>
+          <h1>NFC-Based Card Management System</h1>
+          <p>Design and analysis of a card access control system</p>
         </div>
-      </div>
+        <span class="demo-badge">Academic Demo</span>
+      </header>
 
-      <div class="stats-grid">
-        <article class="stat-card">
-          <span>Total Users</span>
-          <strong id="totalUsers">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Registered Cards</span>
-          <strong id="registeredCards">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Active Cards</span>
-          <strong id="activeCards">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Access Granted Today</span>
-          <strong id="grantedToday">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Access Denied Today</span>
-          <strong id="deniedToday">0</strong>
-        </article>
-      </div>
+      <!-- Dashboard -->
+      <section id="dashboard" class="section">
+        <h2>Dashboard</h2>
 
-      <article class="panel latest-panel">
-        <div class="panel-title">
-          <h4>Latest Scan Result</h4>
-          <span id="latestStatus" class="badge badge-neutral">No scan yet</span>
-        </div>
-        <div class="latest-grid">
-          <div>
-            <span>Card UID</span>
-            <strong id="latestUid">-</strong>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span>Total Users</span>
+            <strong id="totalUsers">0</strong>
           </div>
-          <div>
-            <span>User Name</span>
-            <strong id="latestUser">-</strong>
+
+          <div class="stat-card">
+            <span>Registered Cards</span>
+            <strong id="registeredCards">0</strong>
           </div>
-          <div>
-            <span>Status</span>
-            <strong id="latestResult">-</strong>
+
+          <div class="stat-card">
+            <span>Active Cards</span>
+            <strong id="activeCards">0</strong>
           </div>
-          <div>
-            <span>Location</span>
-            <strong id="latestLocation">-</strong>
+
+          <div class="stat-card">
+            <span>Granted Today</span>
+            <strong id="grantedToday">0</strong>
           </div>
-          <div>
-            <span>Time</span>
-            <strong id="latestTime">-</strong>
+
+          <div class="stat-card">
+            <span>Denied Today</span>
+            <strong id="deniedToday">0</strong>
           </div>
         </div>
-      </article>
 
-      <article class="panel scope-panel">
-        <div>
-          <p class="eyebrow">Project Scope</p>
-          <h4>Academic Simulation Boundary</h4>
+        <div class="panel">
+          <div class="panel-title">
+            <h3>Latest Scan</h3>
+            <span id="latestStatus" class="badge badge-neutral">No scan yet</span>
+          </div>
+
+          <div class="latest-grid">
+            <div>
+              <span>UID</span>
+              <strong id="latestUid">-</strong>
+            </div>
+            <div>
+              <span>User</span>
+              <strong id="latestUser">-</strong>
+            </div>
+            <div>
+              <span>Result</span>
+              <strong id="latestResult">-</strong>
+            </div>
+            <div>
+              <span>Location</span>
+              <strong id="latestLocation">-</strong>
+            </div>
+            <div>
+              <span>Time</span>
+              <strong id="latestTime">-</strong>
+            </div>
+          </div>
         </div>
-        <p>This web panel is an academic simulation of an NFC-based card management system. In a real implementation, the card UID would be captured by a physical NFC reader and sent to the backend service for authentication.</p>
-      </article>
-    </section>
 
-    <section id="register" class="section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Enrollment</p>
-          <h3>Register User/Card</h3>
+        <div class="panel">
+          <h3>Project Scope</h3>
+          <p>
+            This project is a web-based simulation of an NFC card management system.
+            In a real version, the card UID would be read by an NFC reader and sent to
+            the system for authentication.
+          </p>
         </div>
-      </div>
+      </section>
 
-      <div class="two-column">
-        <article class="panel">
-          <form id="registerForm" class="form">
-            <label>
-              Full Name
-              <input type="text" id="fullName" placeholder="Example: Jane Doe" required>
-            </label>
-            <label>
-              Student/Employee ID
-              <input type="text" id="personId" placeholder="Example: 45133" required>
-            </label>
-            <label>
-              Department
-              <input type="text" id="department" placeholder="Example: Computer Engineering" required>
-            </label>
-            <label>
-              Access Level
+      <!-- Register -->
+      <section id="register" class="section">
+        <h2>Register User / Card</h2>
+
+        <div class="two-column">
+          <div class="panel">
+            <form id="registerForm" class="form">
+              <label>Full Name</label>
+              <input type="text" id="fullName" placeholder="Muhammed Akbulut" required />
+
+              <label>Student / Employee ID</label>
+              <input type="text" id="personId" placeholder="45133" required />
+
+              <label>Department</label>
+              <input type="text" id="department" placeholder="Computer Engineering" required />
+
+              <label>Access Level</label>
               <select id="accessLevel" required>
                 <option value="Student">Student</option>
                 <option value="Employee">Employee</option>
                 <option value="Admin">Admin</option>
                 <option value="Guest">Guest</option>
               </select>
-            </label>
-            <label>
-              Card Status
+
+              <label>Card Status</label>
               <select id="cardStatus" required>
                 <option value="Active">Active</option>
                 <option value="Blocked">Blocked</option>
                 <option value="Expired">Expired</option>
               </select>
-            </label>
-            <label>
-              Card UID
-              <div class="inline-field">
-                <input type="text" id="cardUid" placeholder="Example: A7F23D11" maxlength="12" required>
-                <button type="button" id="generateUidBtn" class="secondary-btn">Generate Demo UID</button>
-              </div>
-            </label>
-            <button type="submit" class="primary-btn">Register Card</button>
-          </form>
-        </article>
 
-        <article class="panel">
-          <div class="panel-title">
-            <h4>Registered Users</h4>
-            <span id="userCountLabel" class="muted">0 records</span>
+              <label>Card UID</label>
+              <div class="inline-field">
+                <input type="text" id="cardUid" placeholder="A7F23D11" maxlength="12" required />
+                <button type="button" id="generateUidBtn" class="secondary-btn">Generate UID</button>
+              </div>
+
+              <button type="submit" class="primary-btn">Register Card</button>
+            </form>
           </div>
-          <div class="table-wrap compact-table">
+
+          <div class="panel">
+            <div class="panel-title">
+              <h3>Registered Users</h3>
+              <span id="userCountLabel" class="muted">0 records</span>
+            </div>
+
+            <div class="table-wrap compact-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Department</th>
+                    <th>Level</th>
+                    <th>UID</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scan -->
+      <section id="scan" class="section">
+        <h2>NFC Scan Simulation</h2>
+
+        <div class="panel">
+          <p class="note">
+            For this demo, the NFC UID is entered manually. In a real system, it would
+            come from a reader such as MFRC522 or PN532.
+          </p>
+
+          <div class="scan-controls">
+            <input type="text" id="scanUid" placeholder="Enter NFC Card UID" />
+
+            <select id="scanLocation">
+              <option value="Main Entrance">Main Entrance</option>
+              <option value="Laboratory">Laboratory</option>
+              <option value="Library">Library</option>
+              <option value="Server Room">Server Room</option>
+            </select>
+
+            <button id="authenticateBtn" class="primary-btn">Authenticate</button>
+            <button id="randomScanBtn" class="secondary-btn">Random Scan</button>
+          </div>
+
+          <div id="scanResult" class="scan-result empty-state">
+            Waiting for card scan...
+          </div>
+        </div>
+      </section>
+
+      <!-- Logs -->
+      <section id="logs" class="section">
+        <div class="section-head-simple">
+          <h2>Access Logs</h2>
+          <button id="clearLogsBtn" class="danger-btn">Clear Logs</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>ID</th>
-                  <th>Department</th>
-                  <th>Access Level</th>
-                  <th>Card UID</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>Time</th>
+                  <th>UID</th>
+                  <th>User</th>
+                  <th>Level</th>
+                  <th>Location</th>
+                  <th>Result</th>
+                  <th>Reason</th>
                 </tr>
               </thead>
-              <tbody id="usersTable"></tbody>
+              <tbody id="logsTable"></tbody>
             </table>
           </div>
-        </article>
-      </div>
-    </section>
-
-    <section id="scan" class="section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Simulation</p>
-          <h3>NFC Scan Simulation</h3>
         </div>
-      </div>
+      </section>
 
-      <article class="panel">
-        <p class="note">In a real implementation, this UID would be received from an NFC reader such as MFRC522 or PN532 connected to an ESP32/Arduino device.</p>
-        <div class="scan-controls">
-          <input type="text" id="scanUid" placeholder="Enter or scan NFC Card UID">
-          <select id="scanLocation">
-            <option value="Main Entrance">Main Entrance</option>
-            <option value="Laboratory">Laboratory</option>
-            <option value="Library">Library</option>
-            <option value="Server Room">Server Room</option>
-          </select>
-          <button id="authenticateBtn" class="primary-btn">Authenticate Card</button>
-          <button id="randomScanBtn" class="secondary-btn">Simulate Random Card Scan</button>
-        </div>
-        <div id="scanResult" class="scan-result empty-state">
-          Waiting for NFC card scan...
-        </div>
-      </article>
-    </section>
+      <!-- Architecture -->
+      <section id="architecture" class="section">
+        <h2>System Architecture</h2>
 
-    <section id="logs" class="section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Audit Trail</p>
-          <h3>Access Logs</h3>
-        </div>
-        <button id="clearLogsBtn" class="danger-btn">Clear Logs</button>
-      </div>
+        <div class="panel architecture-panel">
+          <div class="architecture layered-architecture">
+            <div class="arch-layer">
+              <span>Hardware</span>
+              <div class="arch-items">
+                <div class="arch-box">NFC Card</div>
+                <div class="arch-box">NFC Reader</div>
+              </div>
+            </div>
 
-      <article class="panel">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Card UID</th>
-                <th>User</th>
-                <th>Access Level</th>
-                <th>Location</th>
-                <th>Result</th>
-                <th>Reason</th>
-              </tr>
-            </thead>
-            <tbody id="logsTable"></tbody>
-          </table>
-        </div>
-      </article>
-    </section>
+            <div class="arch-layer">
+              <span>Device</span>
+              <div class="arch-box">ESP32 / Arduino</div>
+            </div>
 
-    <section id="architecture" class="section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Design</p>
-          <h3>System Architecture</h3>
-        </div>
-      </div>
+            <div class="arch-layer">
+              <span>Communication</span>
+              <div class="arch-box">REST API</div>
+            </div>
 
-      <article class="panel architecture-panel">
-        <div class="architecture layered-architecture">
-          <div class="arch-layer">
-            <span>Hardware Layer</span>
-            <div class="arch-items">
-              <div class="arch-box">NFC Card</div>
-              <div class="arch-box">NFC Reader</div>
+            <div class="arch-layer">
+              <span>Application</span>
+              <div class="arch-box">Backend Server</div>
+            </div>
+
+            <div class="arch-layer">
+              <span>Data</span>
+              <div class="arch-box">Database</div>
+            </div>
+
+            <div class="arch-layer">
+              <span>Interface</span>
+              <div class="arch-box accent-box">Web Panel</div>
             </div>
           </div>
-          <div class="arch-layer">
-            <span>Device Layer</span>
-            <div class="arch-box">ESP32 / Arduino</div>
+
+          <p class="architecture-text">
+            The NFC reader reads the card UID. The system checks this UID in the database
+            and returns an access result.
+          </p>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section id="security" class="section">
+        <h2>Security Overview</h2>
+
+        <div class="security-grid">
+          <div class="security-card">
+            <h3>UID Validation</h3>
+            <p>The card UID is checked before access is allowed.</p>
           </div>
-          <div class="arch-layer">
-            <span>Communication Layer</span>
-            <div class="arch-box">REST API / HTTPS</div>
+
+          <div class="security-card">
+            <h3>Role Control</h3>
+            <p>Different users can have different access permissions.</p>
           </div>
-          <div class="arch-layer">
-            <span>Application Layer</span>
-            <div class="arch-box">Backend Server</div>
+
+          <div class="security-card">
+            <h3>Access Logs</h3>
+            <p>Each access attempt is saved for monitoring.</p>
           </div>
-          <div class="arch-layer">
-            <span>Data Layer</span>
-            <div class="arch-box">Database</div>
+
+          <div class="security-card">
+            <h3>Blocked Cards</h3>
+            <p>Lost or stolen cards can be blocked.</p>
           </div>
-          <div class="arch-layer">
-            <span>Presentation Layer</span>
-            <div class="arch-box accent-box">Admin Web Panel</div>
+
+          <div class="security-card">
+            <h3>Secure Communication</h3>
+            <p>A real system should use HTTPS between devices and server.</p>
+          </div>
+
+          <div class="security-card">
+            <h3>Database Safety</h3>
+            <p>User and card records should be protected.</p>
           </div>
         </div>
-        <p class="architecture-text">The system receives a unique card identifier from the NFC reader, sends it to the backend service, validates it against stored records, and returns an access decision.</p>
-      </article>
-    </section>
+      </section>
 
-    <section id="security" class="section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Controls</p>
-          <h3>Security Overview</h3>
-        </div>
-      </div>
-
-      <div class="security-grid">
-        <article class="security-card">
-          <h4>Card UID Validation</h4>
-          <p>Each card UID is checked against registered records before access is granted.</p>
-        </article>
-        <article class="security-card">
-          <h4>HTTPS Communication</h4>
-          <p>Production deployments should protect reader-to-server traffic using encrypted channels.</p>
-        </article>
-        <article class="security-card">
-          <h4>Role-Based Access Control</h4>
-          <p>Admin actions can be limited according to user roles and permission levels.</p>
-        </article>
-        <article class="security-card">
-          <h4>Access Log Monitoring</h4>
-          <p>Granted and denied attempts are recorded for review and incident investigation.</p>
-        </article>
-        <article class="security-card">
-          <h4>Lost/Stolen Card Blocking</h4>
-          <p>Compromised cards can be disabled so their UIDs no longer authenticate.</p>
-        </article>
-        <article class="security-card">
-          <h4>Database Protection</h4>
-          <p>Stored records should be backed up, access-controlled, and protected from tampering.</p>
-        </article>
-      </div>
-    </section>
-
-    <footer class="footer">
-      Engineering Thesis Project Demo - NFC-Based Card Management System
-    </footer>
-  </main>
+      <footer class="footer">
+        Engineering Thesis Demo - NFC-Based Card Management System
+      </footer>
+    </main>
   </div>
 
   <div id="toast" class="toast"></div>

@@ -1,4 +1,4 @@
-const sampleUsers = [
+const defaultUsers = [
   {
     fullName: "Muhammed Akbulut",
     personId: "45133",
@@ -25,181 +25,140 @@ const sampleUsers = [
   }
 ];
 
-const demoUnknownUids = ["91AB20FF", "CC8102D4", "70EF4A99", "D4208CE1"];
-const accessRules = {
+const rules = {
   Student: ["Main Entrance", "Library"],
   Employee: ["Main Entrance", "Library", "Laboratory"],
   Admin: ["Main Entrance", "Library", "Laboratory", "Server Room"],
   Guest: ["Main Entrance"]
 };
 
-const storageKeys = {
-  users: "nfcDemoUsers",
-  logs: "nfcDemoLogs",
-  loggedIn: "nfcDemoLoggedIn"
-};
+let users = JSON.parse(localStorage.getItem("users")) || defaultUsers;
+let logs = JSON.parse(localStorage.getItem("logs")) || [];
 
-const elements = {
-  loginScreen: document.getElementById("loginScreen"),
-  appShell: document.getElementById("appShell"),
-  loginForm: document.getElementById("loginForm"),
-  loginUsername: document.getElementById("loginUsername"),
-  loginPassword: document.getElementById("loginPassword"),
-  loginError: document.getElementById("loginError"),
-  totalUsers: document.getElementById("totalUsers"),
-  registeredCards: document.getElementById("registeredCards"),
-  activeCards: document.getElementById("activeCards"),
-  grantedToday: document.getElementById("grantedToday"),
-  deniedToday: document.getElementById("deniedToday"),
-  latestUid: document.getElementById("latestUid"),
-  latestUser: document.getElementById("latestUser"),
-  latestResult: document.getElementById("latestResult"),
-  latestLocation: document.getElementById("latestLocation"),
-  latestTime: document.getElementById("latestTime"),
-  latestStatus: document.getElementById("latestStatus"),
-  usersTable: document.getElementById("usersTable"),
-  logsTable: document.getElementById("logsTable"),
-  userCountLabel: document.getElementById("userCountLabel"),
-  registerForm: document.getElementById("registerForm"),
-  fullName: document.getElementById("fullName"),
-  personId: document.getElementById("personId"),
-  department: document.getElementById("department"),
-  accessLevel: document.getElementById("accessLevel"),
-  cardStatus: document.getElementById("cardStatus"),
-  cardUid: document.getElementById("cardUid"),
-  scanUid: document.getElementById("scanUid"),
-  scanLocation: document.getElementById("scanLocation"),
-  scanResult: document.getElementById("scanResult"),
-  toast: document.getElementById("toast")
-};
-
-let users = loadUsers();
-let logs = loadLogs();
-let toastTimer;
-
-function loadUsers() {
-  const stored = localStorage.getItem(storageKeys.users);
-  if (!stored) {
-    localStorage.setItem(storageKeys.users, JSON.stringify(sampleUsers));
-    return [...sampleUsers];
-  }
-
-  const parsedUsers = JSON.parse(stored).map(user => ({
-    ...user,
-    accessLevel: user.accessLevel || "Student",
-    status: user.status || "Active"
-  }));
-  localStorage.setItem(storageKeys.users, JSON.stringify(parsedUsers));
-  return parsedUsers;
+function saveData() {
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("logs", JSON.stringify(logs));
 }
 
-function loadLogs() {
-  const stored = localStorage.getItem(storageKeys.logs);
-  if (!stored) {
-    return [];
-  }
-
-  return JSON.parse(stored).map(log => ({
-    ...log,
-    accessLevel: log.accessLevel || "-",
-    location: log.location || "-",
-    result: log.result || "Denied",
-    reason: log.reason || "No reason recorded"
-  }));
+function get(id) {
+  return document.getElementById(id);
 }
 
-function saveUsers() {
-  localStorage.setItem(storageKeys.users, JSON.stringify(users));
+function cleanUid(uid) {
+  return uid.trim().toUpperCase().replaceAll(" ", "");
 }
 
-function saveLogs() {
-  localStorage.setItem(storageKeys.logs, JSON.stringify(logs));
-}
-
-function normalizeUid(uid) {
-  return uid.trim().toUpperCase().replace(/\s/g, "");
-}
-
-function formatTime(date = new Date()) {
-  return date.toLocaleString([], {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  });
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function isToday(timeString) {
-  const date = new Date(timeString);
-  const today = new Date();
-  return date.getFullYear() === today.getFullYear()
-    && date.getMonth() === today.getMonth()
-    && date.getDate() === today.getDate();
-}
-
-function generateUid() {
+function makeUid() {
   const chars = "0123456789ABCDEF";
   let uid = "";
-  for (let index = 0; index < 8; index += 1) {
+
+  for (let i = 0; i < 8; i++) {
     uid += chars[Math.floor(Math.random() * chars.length)];
   }
+
   return uid;
 }
 
-function showToast(message) {
-  clearTimeout(toastTimer);
-  elements.toast.textContent = message;
-  elements.toast.classList.add("show");
-  toastTimer = setTimeout(() => {
-    elements.toast.classList.remove("show");
-  }, 2600);
+function showMessage(text) {
+  const toast = get("toast");
+  toast.textContent = text;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2000);
 }
 
-function resultBadge(result) {
-  const className = result === "Granted" ? "badge-granted" : "badge-denied";
-  return `<span class="badge ${className}">${escapeHtml(result)}</span>`;
+function todayOnly(log) {
+  const logDate = new Date(log.time);
+  const today = new Date();
+
+  return (
+    logDate.getDate() === today.getDate() &&
+    logDate.getMonth() === today.getMonth() &&
+    logDate.getFullYear() === today.getFullYear()
+  );
+}
+
+function badge(text) {
+  if (text === "Granted") {
+    return `<span class="badge badge-granted">Granted</span>`;
+  }
+
+  if (text === "Denied") {
+    return `<span class="badge badge-denied">Denied</span>`;
+  }
+
+  return `<span class="badge badge-neutral">${text}</span>`;
 }
 
 function statusBadge(status) {
-  return `<span class="badge badge-${status.toLowerCase()}">${escapeHtml(status)}</span>`;
+  return `<span class="badge badge-${status.toLowerCase()}">${status}</span>`;
 }
 
-function renderUsers() {
-  elements.usersTable.innerHTML = users.map((user, index) => `
-    <tr>
-      <td>${escapeHtml(user.fullName)}</td>
-      <td>${escapeHtml(user.personId)}</td>
-      <td>${escapeHtml(user.department)}</td>
-      <td>${escapeHtml(user.accessLevel)}</td>
-      <td><strong>${escapeHtml(user.cardUid)}</strong></td>
-      <td>${statusBadge(user.status)}</td>
-      <td>
-        <div class="action-group">
-          <button class="small-btn secondary-btn" data-action="block" data-index="${index}" ${user.status === "Blocked" ? "disabled" : ""}>Block Card</button>
-          <button class="small-btn primary-btn" data-action="activate" data-index="${index}" ${user.status === "Active" ? "disabled" : ""}>Activate Card</button>
-          <button class="small-btn danger-btn" data-action="delete" data-index="${index}">Delete</button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
+function updateDashboard() {
+  const todayLogs = logs.filter(todayOnly);
 
-  elements.userCountLabel.textContent = `${users.length} ${users.length === 1 ? "record" : "records"}`;
+  get("totalUsers").textContent = users.length;
+  get("registeredCards").textContent = users.length;
+  get("activeCards").textContent = users.filter(user => user.status === "Active").length;
+  get("grantedToday").textContent = todayLogs.filter(log => log.result === "Granted").length;
+  get("deniedToday").textContent = todayLogs.filter(log => log.result === "Denied").length;
+
+  const last = logs[0];
+
+  if (!last) {
+    get("latestUid").textContent = "-";
+    get("latestUser").textContent = "-";
+    get("latestResult").textContent = "-";
+    get("latestLocation").textContent = "-";
+    get("latestTime").textContent = "-";
+    get("latestStatus").textContent = "No scan yet";
+    get("latestStatus").className = "badge badge-neutral";
+    return;
+  }
+
+  get("latestUid").textContent = last.cardUid;
+  get("latestUser").textContent = last.userName;
+  get("latestResult").textContent = last.result;
+  get("latestLocation").textContent = last.location;
+  get("latestTime").textContent = last.displayTime;
+  get("latestStatus").textContent = last.result;
+  get("latestStatus").className =
+    last.result === "Granted" ? "badge badge-granted" : "badge badge-denied";
 }
 
-function renderLogs() {
+function showUsers() {
+  const table = get("usersTable");
+
+  table.innerHTML = users.map((user, index) => {
+    return `
+      <tr>
+        <td>${user.fullName}</td>
+        <td>${user.personId}</td>
+        <td>${user.department}</td>
+        <td>${user.accessLevel}</td>
+        <td><strong>${user.cardUid}</strong></td>
+        <td>${statusBadge(user.status)}</td>
+        <td>
+          <div class="action-group">
+            <button class="small-btn secondary-btn" onclick="blockCard(${index})">Block</button>
+            <button class="small-btn primary-btn" onclick="activateCard(${index})">Activate</button>
+            <button class="small-btn danger-btn" onclick="deleteCard(${index})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  get("userCountLabel").textContent = users.length + " records";
+}
+
+function showLogs() {
+  const table = get("logsTable");
+
   if (logs.length === 0) {
-    elements.logsTable.innerHTML = `
+    table.innerHTML = `
       <tr>
         <td colspan="7" class="muted">No access logs yet.</td>
       </tr>
@@ -207,88 +166,60 @@ function renderLogs() {
     return;
   }
 
-  elements.logsTable.innerHTML = logs.map(log => `
-    <tr>
-      <td>${escapeHtml(log.displayTime)}</td>
-      <td><strong>${escapeHtml(log.cardUid)}</strong></td>
-      <td>${escapeHtml(log.userName)}</td>
-      <td>${escapeHtml(log.accessLevel)}</td>
-      <td>${escapeHtml(log.location)}</td>
-      <td>${resultBadge(log.result)}</td>
-      <td>${escapeHtml(log.reason)}</td>
-    </tr>
-  `).join("");
+  table.innerHTML = logs.map(log => {
+    return `
+      <tr>
+        <td>${log.displayTime}</td>
+        <td><strong>${log.cardUid}</strong></td>
+        <td>${log.userName}</td>
+        <td>${log.accessLevel}</td>
+        <td>${log.location}</td>
+        <td>${badge(log.result)}</td>
+        <td>${log.reason}</td>
+      </tr>
+    `;
+  }).join("");
 }
 
-function renderStats() {
-  const todaysLogs = logs.filter(log => isToday(log.time));
-  elements.totalUsers.textContent = users.length;
-  elements.registeredCards.textContent = users.length;
-  elements.activeCards.textContent = users.filter(user => user.status === "Active").length;
-  elements.grantedToday.textContent = todaysLogs.filter(log => log.result === "Granted").length;
-  elements.deniedToday.textContent = todaysLogs.filter(log => log.result === "Denied").length;
-}
-
-function renderLatestScan() {
-  const latest = logs[0];
-  if (!latest) {
-    elements.latestUid.textContent = "-";
-    elements.latestUser.textContent = "-";
-    elements.latestResult.textContent = "-";
-    elements.latestLocation.textContent = "-";
-    elements.latestTime.textContent = "-";
-    elements.latestStatus.textContent = "No scan yet";
-    elements.latestStatus.className = "badge badge-neutral";
-    return;
-  }
-
-  elements.latestUid.textContent = latest.cardUid;
-  elements.latestUser.textContent = latest.userName;
-  elements.latestResult.textContent = latest.result;
-  elements.latestLocation.textContent = latest.location;
-  elements.latestTime.textContent = latest.displayTime;
-  elements.latestStatus.textContent = latest.result;
-  elements.latestStatus.className = `badge ${latest.result === "Granted" ? "badge-granted" : "badge-denied"}`;
-}
-
-function renderAll() {
-  renderUsers();
-  renderLogs();
-  renderStats();
-  renderLatestScan();
+function refreshPage() {
+  showUsers();
+  showLogs();
+  updateDashboard();
 }
 
 function registerCard(event) {
   event.preventDefault();
 
-  const newUser = {
-    fullName: elements.fullName.value.trim(),
-    personId: elements.personId.value.trim(),
-    department: elements.department.value.trim(),
-    accessLevel: elements.accessLevel.value,
-    cardUid: normalizeUid(elements.cardUid.value),
-    status: elements.cardStatus.value
+  const user = {
+    fullName: get("fullName").value.trim(),
+    personId: get("personId").value.trim(),
+    department: get("department").value.trim(),
+    accessLevel: get("accessLevel").value,
+    status: get("cardStatus").value,
+    cardUid: cleanUid(get("cardUid").value)
   };
 
-  if (!newUser.fullName || !newUser.personId || !newUser.department || !newUser.cardUid) {
-    showToast("Please complete all registration fields.");
+  if (!user.fullName || !user.personId || !user.department || !user.cardUid) {
+    showMessage("Please fill all fields.");
     return;
   }
 
-  const duplicate = users.some(user => user.cardUid === newUser.cardUid);
-  if (duplicate) {
-    showToast("This Card UID is already registered.");
+  const alreadyExists = users.some(item => item.cardUid === user.cardUid);
+
+  if (alreadyExists) {
+    showMessage("This UID is already registered.");
     return;
   }
 
-  users.push(newUser);
-  saveUsers();
-  elements.registerForm.reset();
-  renderAll();
-  showToast("Card registered successfully.");
+  users.push(user);
+  saveData();
+
+  get("registerForm").reset();
+  refreshPage();
+  showMessage("Card registered.");
 }
 
-function evaluateAccess(user, location) {
+function checkAccess(user, location) {
   if (!user) {
     return {
       result: "Denied",
@@ -310,193 +241,161 @@ function evaluateAccess(user, location) {
     };
   }
 
-  const allowedLocations = accessRules[user.accessLevel] || [];
-  if (!allowedLocations.includes(location)) {
+  if (!rules[user.accessLevel].includes(location)) {
     return {
       result: "Denied",
-      reason: `${user.accessLevel} access is not permitted for ${location}`
+      reason: "Access level not allowed for this location"
     };
   }
 
   return {
     result: "Granted",
-    reason: "Active card and access level permitted"
+    reason: "Card is active and permission is valid"
   };
 }
 
-function authenticateUid(uidValue) {
-  const cardUid = normalizeUid(uidValue);
-  const location = elements.scanLocation.value;
+function scanCard(uidInput) {
+  const cardUid = cleanUid(uidInput);
+  const location = get("scanLocation").value;
+
   if (!cardUid) {
-    showToast("Enter a Card UID before authentication.");
+    showMessage("Enter a card UID.");
     return;
   }
 
-  const user = users.find(record => record.cardUid === cardUid);
-  const decision = evaluateAccess(user, location);
+  const user = users.find(item => item.cardUid === cardUid);
+  const decision = checkAccess(user, location);
   const now = new Date();
+
   const log = {
     time: now.toISOString(),
-    displayTime: formatTime(now),
-    cardUid,
+    displayTime: now.toLocaleString(),
+    cardUid: cardUid,
     userName: user ? user.fullName : "Unknown",
     accessLevel: user ? user.accessLevel : "-",
-    location,
+    location: location,
     result: decision.result,
     reason: decision.reason
   };
 
   logs.unshift(log);
-  saveLogs();
-  renderAll();
-  renderScanResult(log, user);
-  showToast(`Scan completed: Access ${log.result}.`);
+  saveData();
+  refreshPage();
+  showScanResult(log, user);
+  showMessage("Scan completed.");
 }
 
-function renderScanResult(log, user) {
+function showScanResult(log, user) {
+  const box = get("scanResult");
+
   if (log.result === "Granted") {
-    elements.scanResult.className = "scan-result result-granted";
-    elements.scanResult.innerHTML = `
+    box.className = "scan-result result-granted";
+    box.innerHTML = `
       <p class="result-title">ACCESS GRANTED</p>
       <div class="result-grid">
-        <div><span>User Name</span><strong>${escapeHtml(user.fullName)}</strong></div>
-        <div><span>ID</span><strong>${escapeHtml(user.personId)}</strong></div>
-        <div><span>Department</span><strong>${escapeHtml(user.department)}</strong></div>
-        <div><span>Access Level</span><strong>${escapeHtml(user.accessLevel)}</strong></div>
-        <div><span>Location</span><strong>${escapeHtml(log.location)}</strong></div>
-        <div><span>Card UID</span><strong>${escapeHtml(user.cardUid)}</strong></div>
-        <div><span>Time</span><strong>${escapeHtml(log.displayTime)}</strong></div>
+        <div><span>User</span><strong>${user.fullName}</strong></div>
+        <div><span>ID</span><strong>${user.personId}</strong></div>
+        <div><span>Department</span><strong>${user.department}</strong></div>
+        <div><span>Access Level</span><strong>${user.accessLevel}</strong></div>
+        <div><span>Location</span><strong>${log.location}</strong></div>
+        <div><span>UID</span><strong>${user.cardUid}</strong></div>
+        <div><span>Time</span><strong>${log.displayTime}</strong></div>
       </div>
     `;
-    return;
+  } else {
+    box.className = "scan-result result-denied";
+    box.innerHTML = `
+      <p class="result-title">ACCESS DENIED</p>
+      <div class="result-grid">
+        <div><span>UID</span><strong>${log.cardUid}</strong></div>
+        <div><span>User</span><strong>${log.userName}</strong></div>
+        <div><span>Location</span><strong>${log.location}</strong></div>
+        <div><span>Reason</span><strong>${log.reason}</strong></div>
+        <div><span>Time</span><strong>${log.displayTime}</strong></div>
+      </div>
+    `;
   }
-
-  elements.scanResult.className = "scan-result result-denied";
-  elements.scanResult.innerHTML = `
-    <p class="result-title">ACCESS DENIED</p>
-    <div class="result-grid">
-      <div><span>Card UID</span><strong>${escapeHtml(log.cardUid)}</strong></div>
-      <div><span>User</span><strong>${escapeHtml(log.userName)}</strong></div>
-      <div><span>Access Level</span><strong>${escapeHtml(log.accessLevel)}</strong></div>
-      <div><span>Location</span><strong>${escapeHtml(log.location)}</strong></div>
-      <div><span>Reason</span><strong>${escapeHtml(log.reason)}</strong></div>
-      <div><span>Time</span><strong>${escapeHtml(log.displayTime)}</strong></div>
-    </div>
-  `;
 }
 
-function simulateRandomScan() {
-  const registeredUids = users.map(user => user.cardUid);
-  const uidPool = [...registeredUids, ...demoUnknownUids, generateUid()];
-  const randomUid = uidPool[Math.floor(Math.random() * uidPool.length)];
-  elements.scanUid.value = randomUid;
-  authenticateUid(randomUid);
+function randomScan() {
+  const unknownCards = ["91AB20FF", "CC8102D4", "70EF4A99"];
+  const knownCards = users.map(user => user.cardUid);
+  const allCards = knownCards.concat(unknownCards);
+
+  const randomUid = allCards[Math.floor(Math.random() * allCards.length)];
+
+  get("scanUid").value = randomUid;
+  scanCard(randomUid);
 }
 
 function clearLogs() {
   logs = [];
-  saveLogs();
-  elements.scanResult.className = "scan-result empty-state";
-  elements.scanResult.textContent = "Waiting for NFC card scan...";
-  renderAll();
-  showToast("Access logs cleared.");
+  saveData();
+
+  get("scanResult").className = "scan-result empty-state";
+  get("scanResult").textContent = "Waiting for card scan...";
+
+  refreshPage();
+  showMessage("Logs cleared.");
 }
 
-function updateCardStatus(index, status) {
-  users[index].status = status;
-  saveUsers();
-  renderAll();
-  showToast(`Card status updated to ${status}.`);
+function blockCard(index) {
+  users[index].status = "Blocked";
+  saveData();
+  refreshPage();
+  showMessage("Card blocked.");
 }
 
-function deleteUser(index) {
-  const removed = users.splice(index, 1)[0];
-  saveUsers();
-  renderAll();
-  showToast(`${removed.fullName} was deleted from registered cards.`);
+function activateCard(index) {
+  users[index].status = "Active";
+  saveData();
+  refreshPage();
+  showMessage("Card activated.");
 }
 
-function handleUserAction(event) {
-  const button = event.target.closest("button[data-action]");
-  if (!button) {
-    return;
-  }
-
-  const index = Number(button.dataset.index);
-  const action = button.dataset.action;
-
-  if (action === "block") {
-    updateCardStatus(index, "Blocked");
-  }
-
-  if (action === "activate") {
-    updateCardStatus(index, "Active");
-  }
-
-  if (action === "delete") {
-    deleteUser(index);
-  }
+function deleteCard(index) {
+  users.splice(index, 1);
+  saveData();
+  refreshPage();
+  showMessage("Card deleted.");
 }
 
-function handleLogin(event) {
+function login(event) {
   event.preventDefault();
-  const username = elements.loginUsername.value.trim();
-  const password = elements.loginPassword.value;
+
+  const username = get("loginUsername").value.trim();
+  const password = get("loginPassword").value;
 
   if (username === "admin" && password === "admin123") {
-    sessionStorage.setItem(storageKeys.loggedIn, "true");
-    showDashboard();
-    showToast("Login successful.");
-    return;
-  }
-
-  elements.loginError.textContent = "Invalid username or password.";
-}
-
-function showDashboard() {
-  elements.loginScreen.classList.add("hidden");
-  elements.appShell.classList.remove("hidden");
-}
-
-function initializeLoginState() {
-  if (sessionStorage.getItem(storageKeys.loggedIn) === "true") {
-    showDashboard();
+    get("loginScreen").classList.add("hidden");
+    get("appShell").classList.remove("hidden");
+    sessionStorage.setItem("loggedIn", "yes");
+  } else {
+    get("loginError").textContent = "Wrong username or password.";
   }
 }
 
-function setActiveNavLink() {
-  const sections = document.querySelectorAll(".section");
-  const navLinks = document.querySelectorAll(".nav-link");
-  let activeId = "dashboard";
-
-  sections.forEach(section => {
-    const box = section.getBoundingClientRect();
-    if (box.top <= 130 && box.bottom >= 130) {
-      activeId = section.id;
-    }
-  });
-
-  navLinks.forEach(link => {
-    link.classList.toggle("active", link.getAttribute("href") === `#${activeId}`);
-  });
+function checkLogin() {
+  if (sessionStorage.getItem("loggedIn") === "yes") {
+    get("loginScreen").classList.add("hidden");
+    get("appShell").classList.remove("hidden");
+  }
 }
 
-document.getElementById("generateUidBtn").addEventListener("click", () => {
-  elements.cardUid.value = generateUid();
+get("loginForm").addEventListener("submit", login);
+get("registerForm").addEventListener("submit", registerCard);
+
+get("generateUidBtn").addEventListener("click", function () {
+  get("cardUid").value = makeUid();
 });
 
-document.getElementById("authenticateBtn").addEventListener("click", () => {
-  authenticateUid(elements.scanUid.value);
+get("authenticateBtn").addEventListener("click", function () {
+  scanCard(get("scanUid").value);
 });
 
-document.getElementById("randomScanBtn").addEventListener("click", simulateRandomScan);
-document.getElementById("clearLogsBtn").addEventListener("click", clearLogs);
-elements.registerForm.addEventListener("submit", registerCard);
-elements.usersTable.addEventListener("click", handleUserAction);
-elements.loginForm.addEventListener("submit", handleLogin);
-window.addEventListener("scroll", setActiveNavLink);
+get("randomScanBtn").addEventListener("click", randomScan);
+get("clearLogsBtn").addEventListener("click", clearLogs);
 
-initializeLoginState();
-renderAll();
-setActiveNavLink();
-
+checkLogin();
+saveData();
+refreshPage();
